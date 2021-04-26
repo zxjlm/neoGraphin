@@ -5,7 +5,11 @@
  */
 const colorMap = {
     'Gene': '#4967b4',
-    'Herb': '#26ba5f'
+    'Herb': '#26ba5f',
+    'Disease': '#24993d',
+    'Mol': "#de1515",
+    'MM_symptom': "#c7a758",
+    'TEC_symptom': "#c7a"
 }
 
 
@@ -37,9 +41,23 @@ export function extract_links(result) {
     let edges = []
     let nodes = {}
     result.forEach(r => {
-        edges.push({source: r.get(0).start.properties.id, target: r.get(0).end.properties.id})
-        nodes[r.get(0).start.identity] = r.get(0).start.properties
-        nodes[r.get(0).end.identity] = r.get(0).end.properties
+        let node_start = r.get(0).start;
+        let node_end = r.get(0).end;
+        edges.push({source: node_start.properties.id, target: node_end.properties.id})
+        nodes[node_start.identity] = {
+            ...node_start.properties,
+            style: {
+                keyshape: {fill: colorMap[node_start.labels[0]]},
+                label: {value: short_node(node_start.properties.s_name)}
+            },
+        }
+        nodes[node_end.identity] = {
+            ...node_end.properties,
+            style: {
+                keyshape: {fill: colorMap[node_end.labels[0]]},
+                label: {value: short_node(node_end.properties.s_name)}
+            },
+        }
     })
     let nodes_1 = []
     for (let key in nodes) {
@@ -50,6 +68,18 @@ export function extract_links(result) {
 
 export function extract_nodes(nodes) {
     console.log(nodes)
-    return nodes.map(n => ({...n.get(0).properties,color:colorMap[''],queryId:nodes[10].get(0).identity.toString()}))
+    return nodes.map(n => ({
+        ...n.get(0).properties,
+        style: {keyshape: {fill: colorMap[n.get(0).labels[0]]}, label: {value: n.get(0).properties.s_name}},
+        queryId: n.get(0).identity.toString()
+    }))
+}
+
+
+function short_node(name) {
+    if (name.length > 6) {
+        return name.slice(0, 6) + '...'
+    }
+    return name
 }
 

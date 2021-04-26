@@ -1,10 +1,10 @@
 /* eslint-disable no-undef */
 import React, {createRef, useEffect, useState} from 'react';
 
-import Graphin, {Utils} from '@antv/graphin';
+import Graphin from '@antv/graphin';
 
-import {Select, Card} from 'antd';
-import {Tooltip} from '@antv/graphin-components';
+import {Select, Card, Menu} from 'antd';
+import {ContextMenu, FishEye, MiniMap, Toolbar, Tooltip} from '@antv/graphin-components';
 
 import 'antd/dist/antd.css'; //避免与全局样式污染
 // 引入Graphin CSS
@@ -23,6 +23,7 @@ import {GraphinData} from "@antv/graphin/es";
 import {extract_links, extract_nodes, neo_query} from "../utils/neo-operations";
 import {AntdTooltip} from "./AntdTooltip";
 import {edgesUnique, dictUnique} from "../utils/useful";
+import {CustomContent} from "./ToolbarCustom";
 
 const iconMap = {
     'graphin-force': <ShareAltOutlined/>,
@@ -63,7 +64,6 @@ const LayoutSelector = (props: { value: any; onChange: any; options: any; }) => 
 };
 
 const layouts = [
-    {type: 'graphin-force'},
     {
         type: 'grid',
         // begin: [0, 0], // 可选，
@@ -76,6 +76,7 @@ const layouts = [
         // sortBy: 'degree', // 可选
         // workerEnabled: false, // 可选，开启 web-worker
     },
+    {type: 'graphin-force'},
     {
         type: 'circular',
         // center: [200, 200], // 可选，默认为图的中心
@@ -124,8 +125,8 @@ const layouts = [
     {
         type: 'gForce',
         linkDistance: 150, // 可选，边长
-        nodeStrength: 30, // 可选
-        edgeStrength: 0.1, // 可选
+        nodeStrength: 300, // 可选
+        edgeStrength: 0.6, // 可选
         nodeSize: 30, // 可选
         onTick: () => {
             // 可选
@@ -194,11 +195,20 @@ const layouts = [
         // },
     },
 ];
+
 export const DynamicLayout = () => {
     const graphinRef = createRef<Graphin>();
 
     const [type, setLayout] = React.useState('graphin-force');
     const [graphData, setGraphData] = useState<GraphinData>({'nodes': [], 'edges': []} as GraphinData);
+
+    const [visible, setVisible] = React.useState(false);
+    const handleClick = () => {
+        setVisible(true);
+    };
+    const handleClose = () => {
+        setVisible(false);
+    };
 
     const handleChange = (value: React.SetStateAction<string>) => {
         setLayout(value);
@@ -206,7 +216,7 @@ export const DynamicLayout = () => {
 
     useEffect(() => {
         // @ts-ignore
-        const {graph, apis} = graphinRef.current;
+        const {graph} = graphinRef.current;
 
         // let query = 'MATCH p=()-[r:GeneIndications]->() RETURN p LIMIT 25'
         let query = 'MATCH (n:Herb) RETURN n LIMIT 25'
@@ -222,26 +232,24 @@ export const DynamicLayout = () => {
                 let ret = {'nodes': [...nodes_1, ...nodes_2], 'edges': edges}
                 setGraphData(ret)
                 sessionStorage.setItem('graph', JSON.stringify(ret))
+                console.log(ret)
             }
         )
 
         graph.on('node:dblclick', (evt: { item: any; target: any; }) => {
             const item = evt.item; // 被操作的节点 item
+            debugger
             let sub_query = "MATCH r=(s)-->() WHERE ID(s) = " + item.getModel()["queryId"] + " RETURN r"
             neo_query(sub_query).then(
                 result => {
-                    // const graph = useRef('');
                     let tmp_graph = JSON.parse(sessionStorage.getItem('graph') as string)
                     let {edges, nodes_1} = extract_links(result.records)
-                    debugger
-                    console.log('graphd', tmp_graph)
                     let res_node = [...tmp_graph.nodes, ...nodes_1]
                     let res_edge = [...tmp_graph.edges, ...edges]
                     // @ts-ignore
-                    let ret = {'nodes': dictUnique(res_node,'queryId'), 'edges': edgesUnique(res_edge)}
+                    let ret = {'nodes': dictUnique(res_node, 'queryId'), 'edges': edgesUnique(res_edge)}
                     setGraphData(ret)
                     sessionStorage.setItem('graph', JSON.stringify(ret))
-                    console.log(ret)
                 }
             )
         });
@@ -255,19 +263,26 @@ export const DynamicLayout = () => {
                 extra={<LayoutSelector options={layouts} value={type} onChange={handleChange}/>}
             >
                 <Graphin data={graphData}
-                         layout={{type: 'gForce'}}
+                         layout={layout}
                          ref={graphinRef}>
                     <Tooltip
                         bindType="node"
                         style={{
-                            // ...tooltipStyles,
                             transform: `translate(-${nodeSize / 2}px,-${nodeSize / 2}px)`,
-                            // 用户只需要将这个颜色去掉即可
-                            // background: 'red',
                         }}
                     >
                         <AntdTooltip/>
                     </Tooltip>
+                    <Toolbar direction="horizontal" style={{position: 'absolute', right: '250px'}}>
+                        <CustomContent/>
+                    </Toolbar>
+                    <MiniMap visible={true}/>
+                    <ContextMenu bindType="canvas">
+                        <Menu>
+                            <Menu.Item onClick={handleClick}>开启 FishEye</Menu.Item>
+                        </Menu>
+                    </ContextMenu>
+                    <FishEye options={{}} visible={visible} handleEscListener={handleClose}/>
                 </Graphin>
             </Card>
         </div>
