@@ -4,7 +4,7 @@ import React, {createRef, useEffect, useState} from 'react';
 import Graphin from '@antv/graphin';
 
 import {Select, Card, Menu} from 'antd';
-import {ContextMenu, FishEye, MiniMap, Toolbar, Tooltip} from '@antv/graphin-components';
+import {ContextMenu, FishEye, LayoutSelector, MiniMap, Toolbar, Tooltip} from '@antv/graphin-components';
 
 import 'antd/dist/antd.css'; //避免与全局样式污染
 // 引入Graphin CSS
@@ -24,6 +24,7 @@ import {extract_links, extract_nodes, neo_query} from "../utils/neo-operations";
 import {AntdTooltip} from "./AntdTooltip";
 import {edgesUnique, dictUnique} from "../utils/useful";
 import {CustomContent} from "./ToolbarCustom";
+import LayoutSelectorPanel from "./LayoutSelectorPanel";
 
 const iconMap = {
     'graphin-force': <ShareAltOutlined/>,
@@ -38,7 +39,7 @@ const iconMap = {
 const nodeSize = 40;
 
 const SelectOption = Select.Option;
-const LayoutSelector = (props: { value: any; onChange: any; options: any; }) => {
+const LayoutSelectorDIY = (props: { value: any; onChange: any; options: any; }) => {
     const {value, onChange, options} = props;
     // 包裹在graphin内部的组件，将获得graphin提供的额外props
 
@@ -196,13 +197,26 @@ const layouts = [
     },
 ];
 
+const defaultLayout = {
+    type: 'graphin-force',
+    preset: {
+        type: 'concentric',
+    },
+    animation: true,
+};
+
 export const DynamicLayout = () => {
     const graphinRef = createRef<Graphin>();
 
     const [type, setLayout] = React.useState('graphin-force');
     const [graphData, setGraphData] = useState<GraphinData>({'nodes': [], 'edges': []} as GraphinData);
-
     const [visible, setVisible] = React.useState(false);
+
+    const updateLayout = (previousType: any, type: any, defaultLayoutConfigs: any) => {
+        console.log(previousType, type, defaultLayoutConfigs);
+    };
+
+
     const handleClick = () => {
         setVisible(true);
     };
@@ -260,11 +274,14 @@ export const DynamicLayout = () => {
         <div>
             <Card
                 title="布局切换"
-                extra={<LayoutSelector options={layouts} value={type} onChange={handleChange}/>}
+                // extra={<LayoutSelectorDIY options={layouts} value={type} onChange={handleChange}/>}
             >
                 <Graphin data={graphData}
                          layout={layout}
                          ref={graphinRef}>
+                    <LayoutSelector>
+                        <LayoutSelectorPanel updateLayout={updateLayout} />
+                    </LayoutSelector>
                     <Tooltip
                         bindType="node"
                         style={{

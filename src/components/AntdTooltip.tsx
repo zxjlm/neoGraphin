@@ -58,7 +58,7 @@ export const AntdTooltip = () => {
     const model = item && item.getModel();
     return (
         // @ts-ignore
-        <div onContextMenu={handleContextMenu}>
+        <div>
             {/*<Popover placement="topLeft" title={model.s_name} content={'1231231231'} color={"#FFB148"}>*/}
             {/*    <div style={tooltipStyles} />*/}
             {/*</Popover>*/}
