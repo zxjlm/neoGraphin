@@ -30,7 +30,7 @@ const defaultLayout = {
 export const DynamicLayout = () => {
     const graphinRef = createRef<Graphin>();
 
-    const [layout, setLayout] = React.useState({ ...defaultLayout, animation: false });
+    const [layout, setLayout] = React.useState({...defaultLayout, animation: false});
     const [graphData, setGraphData] = useState<GraphinData>({'nodes': [], 'edges': []} as GraphinData);
     const [visible, setVisible] = React.useState(false);
     const [isPanelVisible, setIsPanelVisible] = useState(true);
@@ -73,7 +73,6 @@ export const DynamicLayout = () => {
 
         graph.on('node:dblclick', (evt: { item: any; target: any; }) => {
             const item = evt.item; // 被操作的节点 item
-            debugger
             let sub_query = "MATCH r=(s)-->() WHERE ID(s) = " + item.getModel()["queryId"] + " RETURN r"
             neo_query(sub_query).then(
                 result => {
@@ -93,36 +92,33 @@ export const DynamicLayout = () => {
     // const layout = layouts.find(item => item.type === type);
     return (
         <div>
-            <Card
-                title="布局切换"
-                // extra={<LayoutSelectorDIY options={layouts} value={type} onChange={handleChange}/>}
+            <Graphin data={graphData}
+                     layout={layout}
+                     ref={graphinRef}
             >
-                <Graphin data={graphData}
-                         layout={layout}
-                         ref={graphinRef}>
-                    {/*<LayoutSelector>*/}
-                        <LayoutSelectorPanel isVisible={isPanelVisible} setVisible={setIsPanelVisible} updateLayout={updateLayout}/>
-                    {/*</LayoutSelector>*/}
-                    <Tooltip
-                        bindType="node"
-                        style={{
-                            transform: `translate(-${nodeSize / 2}px,-${nodeSize / 2}px)`,
-                        }}
-                    >
-                        <AntdTooltip/>
-                    </Tooltip>
-                    <Toolbar direction="horizontal" style={{position: 'absolute', right: '250px'}}>
-                        <CustomContent/>
-                    </Toolbar>
-                    <MiniMap visible={true}/>
-                    <ContextMenu bindType="canvas">
-                        <Menu>
-                            <Menu.Item onClick={handleClick}>开启 FishEye</Menu.Item>
-                        </Menu>
-                    </ContextMenu>
-                    <FishEye options={{}} visible={visible} handleEscListener={handleClose}/>
-                </Graphin>
-            </Card>
+                {/*<LayoutSelector>*/}
+                <LayoutSelectorPanel isVisible={isPanelVisible} setVisible={setIsPanelVisible}
+                                     updateLayout={updateLayout}/>
+                {/*</LayoutSelector>*/}
+                <Tooltip
+                    bindType="node"
+                    style={{
+                        transform: `translate(-${nodeSize / 2}px,-${nodeSize / 2}px)`,
+                    }}
+                >
+                    <AntdTooltip/>
+                </Tooltip>
+                <Toolbar direction="horizontal" style={{position: 'absolute', right: '250px'}}>
+                    <CustomContent isPanelVisible={isPanelVisible} setIsPanelVisible={setIsPanelVisible}/>
+                </Toolbar>
+                <MiniMap visible={true}/>
+                <ContextMenu bindType="canvas">
+                    <Menu>
+                        <Menu.Item onClick={handleClick}>开启 FishEye</Menu.Item>
+                    </Menu>
+                </ContextMenu>
+                <FishEye options={{}} visible={visible} handleEscListener={handleClose}/>
+            </Graphin>
         </div>
     );
 };

@@ -3,11 +3,10 @@ import React from "react";
 import {GraphinContext} from "@antv/graphin";
 import {hashCode} from "../utils/useful";
 
-const nodeSize = 40;
-
 const CustomContextMenu = (props: { content: any; }) => {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const {content} = props;
+    const nodeSize = 40;
 
     const generate_card = () => {
         const banItem = ['layout', 'queryId', 'style', 'x', 'y', 'degree', 'type']

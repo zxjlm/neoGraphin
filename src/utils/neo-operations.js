@@ -28,7 +28,10 @@ export async function neo_query(query) {
 
     try {
         result = await session.run(query);
-    } finally {
+    }catch (e) {
+        alert('connect false')
+    }
+    finally {
         await session.close();
     }
 

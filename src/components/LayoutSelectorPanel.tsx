@@ -19,14 +19,14 @@ const LayoutConfigPanel = ({isVisible,setVisible,updateLayout, layoutConfig = gr
 
     const {graph} = useContext(Graphin.GraphinContext);
 
-    const [currentLayout, setCurrentLayout] = useState(layoutConfig.graphLayout_force as LayoutConfig[]);
+    const [currentLayout, setCurrentLayout] = useState(layoutConfig.graphLayout_grid as LayoutConfig[]);
 
     const [currentLayoutType, setCurrentLayoutType] = useState('force');
     const [content, setContent] = useState();
 
     const [layoutTipInfo, setLayoutTipInfo] = useState({
-        text: layoutConfig.graphLayout_force[0].title,
-        icon: layoutConfig.graphLayout_force[0].icon,
+        text: layoutConfig.graphLayout_grid[0].title,
+        icon: layoutConfig.graphLayout_grid[0].icon,
     });
 
     // 根据 Graph 的大小更新一遍默认系数
@@ -59,20 +59,6 @@ const LayoutConfigPanel = ({isVisible,setVisible,updateLayout, layoutConfig = gr
                 }
                 return item;
             });
-        });
-    }, []);
-
-    const [state, setState] = useState({
-        layout: {...layoutConfig.graphLayout_force, animation: false},
-        data: {},
-    });
-
-    useEffect(() => {
-        setState(preState => {
-            return {
-                ...preState,
-                data: graph.save(),
-            };
         });
     }, []);
 
@@ -246,7 +232,7 @@ const LayoutConfigPanel = ({isVisible,setVisible,updateLayout, layoutConfig = gr
                 </Col>
                 <Col span={2}>
           <span className={'collapseIcon'}>
-            <CloseOutlined onClick={setVisible(!isVisible)}/>
+            <CloseOutlined onClick={() => setVisible(!isVisible)}/>
           </span>
                 </Col>
             </Row>

@@ -9,7 +9,8 @@ import {
     VideoCameraAddOutlined,
 } from '@ant-design/icons';
 
-export const CustomContent = () => {
+// @ts-ignore
+export const CustomContent = ({isPanelVisible,setIsPanelVisible}) => {
     const {apis} = React.useContext(GraphinContext);
     const {handleZoomIn, handleZoomOut} = apis;
     const options = [
@@ -33,6 +34,9 @@ export const CustomContent = () => {
             key: 'visSetting',
             name: <PieChartOutlined/>,
             description: '可视化设置',
+            action: () => {
+                setIsPanelVisible(!isPanelVisible)
+            }
         },
     ];
     return (
