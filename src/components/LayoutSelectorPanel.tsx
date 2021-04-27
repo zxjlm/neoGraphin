@@ -6,15 +6,15 @@ import {Row, Col, Form, Divider, Tooltip, Dropdown, Menu} from 'antd';
 import {DownOutlined, CloseOutlined} from '@ant-design/icons';
 import graphLayoutConfig from './defaultLayoutConfig';
 
-import styles from './index.css';
+import '../css/panel.css';
 
 import {debounce} from 'lodash';
 
-console.log(styles.blockContainer)
+// console.log(styles)
 
 const defaultValue = {};
 
-const LayoutConfigPanel = ({updateLayout, layoutConfig = graphLayoutConfig}) => {
+const LayoutConfigPanel = ({isVisible,setVisible,updateLayout, layoutConfig = graphLayoutConfig}) => {
     const [form] = Form.useForm();
 
     const {graph} = useContext(Graphin.GraphinContext);
@@ -213,7 +213,7 @@ const LayoutConfigPanel = ({updateLayout, layoutConfig = graphLayoutConfig}) => 
         });
         form.setFieldsValue(defaultValue);
         const formContent = (
-            <div className={styles.blockContainer}>
+            <div className={'blockContainer'}>
                 <Form
                     form={form}
                     name={`${currentLayoutType}-config-form`}
@@ -231,20 +231,22 @@ const LayoutConfigPanel = ({updateLayout, layoutConfig = graphLayoutConfig}) => 
 
     return (
         <div
-            className={styles.draggablePanel}
+            className={'draggablePanel'}
             style={{
                 top: 50,
                 right: 30,
-                height: '500px',
+                height: '600px',
+                bottom:50
             }}
+            hidden={isVisible}
         >
-            <Row className={styles.header}>
-                <Col span={22} className={styles.title}>
+            <Row className={'header'}>
+                <Col span={22} className={'title'}>
                     布局配置
                 </Col>
                 <Col span={2}>
-          <span className={styles.collapseIcon}>
-            <CloseOutlined/>
+          <span className={'collapseIcon'}>
+            <CloseOutlined onClick={setVisible(!isVisible)}/>
           </span>
                 </Col>
             </Row>
@@ -270,7 +272,7 @@ const LayoutConfigPanel = ({updateLayout, layoutConfig = graphLayoutConfig}) => 
                 </Col>
             </Row>
             <div
-                className={styles.contentContainer}
+                className={'contentContainer'}
                 style={{
                     display: 'block',
                 }}

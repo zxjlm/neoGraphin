@@ -1,8 +1,7 @@
 import React from "react";
 import {PageHeader} from "antd";
 import {DynamicLayout} from "./components/DynamicLayout";
-import SimpleSelector from "./components/SimpleSelector";
-
+import './App.less'
 // const NEO4J_URI = "bolt://localhost:7687";
 // const NEO4J_USER = "neo4j";
 // const NEO4J_PASSWORD = "zxjzxj233";
@@ -22,7 +21,7 @@ const App = () => {
                 {/*    neo4jPassword={NEO4J_PASSWORD}*/}
                 {/*    backgroundColor={"#b2beb5"}*/}
                 {/*/>*/}
-                <SimpleSelector/>
+                <DynamicLayout/>
             </main>
         </div>
     );

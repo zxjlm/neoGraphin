@@ -34,16 +34,6 @@ export const CustomContent = () => {
             name: <PieChartOutlined/>,
             description: '可视化设置',
         },
-        {
-            key: 'clearCanvas',
-            name: <DeleteOutlined/>,
-            description: '清空画布',
-        },
-        {
-            key: 'showHideElement',
-            name: <VideoCameraAddOutlined/>,
-            description: '显示隐藏元素',
-        },
     ];
     return (
         <div>

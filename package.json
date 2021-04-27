@@ -5,6 +5,7 @@
   "dependencies": {
     "@antv/graphin": "^2.0.6",
     "@antv/graphin-components": "^2.0.5",
+    "@craco/craco": "^6.1.1",
     "@testing-library/jest-dom": "^5.11.4",
     "@testing-library/react": "^11.1.0",
     "@testing-library/user-event": "^12.1.10",
@@ -15,6 +16,7 @@
     "antd": "^4.15.2",
     "axios": "^0.21.1",
     "concurrently": "^6.0.2",
+    "craco-less": "^1.17.1",
     "less": "^4.1.1",
     "less-watch-compiler": "^1.14.6",
     "neo4j-driver": "^4.2.3",
@@ -26,9 +28,9 @@
     "web-vitals": "^1.0.1"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
+    "start": "craco start",
+    "build": "craco build",
+    "test": "craco test",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
