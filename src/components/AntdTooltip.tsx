@@ -23,7 +23,7 @@ const CustomContextMenu = (props: { content: any; }) => {
         <div
             style={{
                 position: 'absolute',
-                left: 100, // x,
+                left: 200, // x,
                 top: nodeSize, // y,
             }}
         >
