@@ -1,5 +1,5 @@
 /* eslint-disable no-undef */
-import React, {createRef, useEffect, useState} from 'react';
+import React, {createRef, useEffect, useMemo, useState} from 'react';
 
 import Graphin from '@antv/graphin';
 
@@ -12,6 +12,8 @@ import {edgesUnique, dictUnique} from "../utils/useful";
 import {CustomContent} from "./ToolbarCustom";
 import LayoutSelectorPanel from "./LayoutSelectorPanel";
 import CypherFunctionalPanel from "./CypherFunctionalPanel";
+import {useDispatch} from "react-redux";
+import {initGraph, queryGraph} from "../reducer/neo4jReducer";
 
 const nodeSize = 40;
 
@@ -30,28 +32,31 @@ const defaultLayout = {
 
 export const DynamicLayout = () => {
     const graphinRef = createRef<Graphin>();
+    const dispatch = useDispatch()
 
     const [layout, setLayout] = React.useState({...defaultLayout, animation: false});
     const [graphData, setGraphData] = useState<GraphinData>({'nodes': [], 'edges': []} as GraphinData);
     const [visible, setVisible] = React.useState(false);
     const [layoutPanelVisible, setLayoutPanelVisible] = useState(true);
     const [funcPanelVisible, setFuncPanelVisible] = useState(false);
+    const [autoCompleteOptions, setAutoCompleteOptions] = useState<autoComplete[]>([]);
 
     useEffect(() => {
         // @ts-ignore
         const {graph} = graphinRef.current;
 
+        dispatch(initGraph('111s'))
         // let query = 'MATCH p=()-[r:GeneIndications]->() RETURN p LIMIT 25'
         let query = 'MATCH (n:Herb) RETURN n LIMIT 25'
         neoQuery(query).then(
             result => {
                 setGraphData(result)
                 sessionStorage.setItem('graph', JSON.stringify(result))
-                console.log(result)
             }
         )
 
         graph.on('node:dblclick', (evt: { item: any; target: any; }) => {
+            dispatch(queryGraph('222'))
             const item = evt.item; // 被操作的节点 item
             let sub_query = "MATCH r=(s)-->() WHERE ID(s) = " + item.getModel()["queryId"] + " RETURN r"
             neoQuery(sub_query).then(result => {
@@ -59,9 +64,9 @@ export const DynamicLayout = () => {
                 let res_node = [...tmp_graph.nodes, ...result.nodes]
                 let res_edge = [...tmp_graph.edges, ...result.edges]
                 let ret = {'nodes': dictUnique(res_node, 'queryId'), 'edges': edgesUnique(res_edge)}
+                console.log(tmp_graph,ret)
                 setGraphData(ret)
-                console.log('graph data', graphData)
-                sessionStorage.setItem('graph', JSON.stringify(result))
+                sessionStorage.setItem('graph', JSON.stringify(ret))
             })
         });
     }, []);

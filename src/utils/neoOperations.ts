@@ -46,6 +46,7 @@ function extract_links(result: Record[]) {
                 keyshape: {fill: colorMap[node_start.labels[0]]},
                 label: {value: short_node(node_start.properties.s_name)}
             },
+            nodeType: node_start.labels[0]
         }
         nodes[node_end.identity] = {
             ...node_end.properties,
@@ -53,6 +54,7 @@ function extract_links(result: Record[]) {
                 keyshape: {fill: colorMap[node_end.labels[0]]},
                 label: {value: short_node(node_end.properties.s_name)}
             },
+            nodeType: node_end.labels[0]
         }
     })
     let nodes_1 = []
