@@ -1,13 +1,46 @@
 // @ts-nocheck
-import * as Graphin from '@antv/graphin';
-import React from 'react';
-import {Col, Divider, Dropdown, Form, Menu, Row, Tooltip} from 'antd';
+import React, {useCallback, useState} from 'react';
+import {AutoComplete, Col, Divider, Form, Row} from 'antd';
 import {CloseOutlined} from '@ant-design/icons';
-
+import {debounce} from 'lodash';
 import '../css/panel.css';
+import {neoQuery} from "../utils/neoOperations";
 
 
-const LayoutConfigPanel = ({isVisible, setVisible}) => {
+const CypherFunctionalPanel = ({isVisible, setVisible, nodeOptions, setGraphData}) => {
+
+    const [options, setOptions] = useState(nodeOptions);
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    const debounceSearch = useCallback(
+        debounce(
+            (searchText) => searchHandler(searchText),
+            1000,
+        ),
+        [],
+    );
+
+    const searchHandler = (searchText) => {
+        setOptions(nodeOptions.map(option => ({
+            ...option,
+            options: option.options.filter(elem => !elem.value.search(searchText))
+        })))
+    }
+
+    const onSearch = (searchText) => {
+        debounceSearch(searchText)
+    }
+
+    const onSelect = (selectText) => {
+        console.log(selectText)
+        neoQuery(`MATCH (n:Herb) WHERE n.s_name=${selectText} RETURN n`).then(
+            result => {
+                setGraphData(ret)
+                sessionStorage.setItem('graph', JSON.stringify(ret))
+                console.log(ret)
+            }
+        )
+    }
 
     return (
         <div
@@ -39,27 +72,34 @@ const LayoutConfigPanel = ({isVisible, setVisible}) => {
                     <Divider/>
                     <div style={{fontWeight: 'bold'}}>查找</div>
                 </Col>
-                {/*<Dropdown overlay={layoutMenu}>*/}
-                {/*    <Col span={24} style={{textAlign: 'center', marginBottom: 8, cursor: 'pointer'}}>*/}
-                {/*        <span style={{fontSize: 14, marginRight: 8, marginLeft: 8}}>{layoutTipInfo.text}</span>*/}
-                {/*        <DownOutlined/>*/}
-                {/*    </Col>*/}
-                {/*</Dropdown>*/}
+                <Form>
+                    <AutoComplete
+                        dropdownMatchSelectWidth={500}
+                        style={{
+                            width: 250,
+                        }}
+                        options={options}
+                        onSearch={onSearch}
+                        placeholder={'节点名称'}
+                        onSelect={onSelect}
+                    />
+                </Form>
+
                 <Col span={24}>
                     <Divider/>
                     <div style={{fontWeight: 'bold'}}>配置参数</div>
                 </Col>
             </Row>
-            <div
-                className={'contentContainer'}
-                style={{
-                    display: 'block',
-                }}
-            >
-                111122
-            </div>
+            {/*<div*/}
+            {/*    className={'contentContainer'}*/}
+            {/*    style={{*/}
+            {/*        display: 'block',*/}
+            {/*    }}*/}
+            {/*>*/}
+            {/*    111122*/}
+            {/*</div>*/}
         </div>
     );
 };
 
-export default LayoutConfigPanel;
+export default CypherFunctionalPanel;

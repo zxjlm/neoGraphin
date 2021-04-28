@@ -1,9 +1,12 @@
-/**
- *
- * @param query
- * @returns {Promise<{summary: string, records: *[]}>}
- */
-const colorMap = {
+import {QueryResult} from "neo4j-driver/types/result";
+import Record from "neo4j-driver/types/record";
+
+interface neoQueryType {
+    nodes: any[]
+    edges: { source: any; target: any }[]
+}
+
+const colorMap: any = {
     'Gene': '#4967b4',
     'Herb': '#26ba5f',
     'Disease': '#24993d',
@@ -12,8 +15,8 @@ const colorMap = {
     'TEC_symptom': "#c7a"
 }
 
-
-export async function neo_query(query) {
+// @ts-ignore
+const neo_query = async (query: string): Promise<QueryResult> => {
     const neo4j = require("neo4j-driver");
 
     const driver = neo4j.driver(
@@ -21,28 +24,18 @@ export async function neo_query(query) {
         neo4j.auth.basic("neo4j", "zxjzxj233")
     );
     const session = driver.session({defaultAccessMode: neo4j.session.READ});
-    let result = {
-        records: [],
-        summary: "",
-    };
 
-    try {
-        result = await session.run(query);
-    }catch (e) {
-        alert('connect false')
-    }
-    finally {
-        await session.close();
-    }
+    const result = await session.run(query);
+    await session.close();
 
     // on application exit:
     await driver.close();
-    return result;
+    return result
 }
 
-export function extract_links(result) {
-    let edges = []
-    let nodes = {}
+function extract_links(result: Record[]) {
+    let edges: { source: any; target: any; }[] = []
+    let nodes: any = {}
     result.forEach(r => {
         let node_start = r.get(0).start;
         let node_end = r.get(0).end;
@@ -64,25 +57,40 @@ export function extract_links(result) {
     })
     let nodes_1 = []
     for (let key in nodes) {
-        nodes_1.push({...nodes[key], queryId: key})
+        if (nodes.hasOwnProperty(key))
+            nodes_1.push({...nodes[key], queryId: key})
     }
     return {edges, nodes_1}
 }
 
-export function extract_nodes(nodes) {
-    console.log(nodes)
+export function extract_nodes(nodes: Record[]) {
     return nodes.map(n => ({
         ...n.get(0).properties,
         style: {keyshape: {fill: colorMap[n.get(0).labels[0]]}, label: {value: n.get(0).properties.s_name}},
-        queryId: n.get(0).identity.toString()
+        queryId: n.get(0).identity.toString(),
+        nodeType: n.get(0).labels[0]
     }))
 }
 
+/**
+ * 返回一个符合Graphin渲染规则的字典
+ * @param query CYPHER语句
+ */
+export const neoQuery = async (query: string): Promise<neoQueryType> => {
+    const result = await neo_query(query)
+    let raw_links = result.records.filter(elem => elem.keys[0] === 'p' || elem.keys[0] === 'r')
+    let raw_nodes = result.records.filter(elem => elem.keys[0] === 'n')
+    let {edges, nodes_1} = extract_links(raw_links)
+    let nodes_2 = extract_nodes(raw_nodes)
+    return {'nodes': [...nodes_1, ...nodes_2], 'edges': edges}
+}
 
-function short_node(name) {
+
+function short_node(name: string) {
     if (name.length > 6) {
         return name.slice(0, 6) + '...'
     }
     return name
 }
+
 

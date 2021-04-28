@@ -4,18 +4,20 @@ export const hashCode = (s: string) => s.split('').reduce((a, b) => {
 }, 0);
 
 
-export const dictUnique = (arr: [], pk:string) => {
-    let ret = {}
+export const dictUnique = (arr: any[], pk: string): any[] => {
+    let ret: any = {}
     let result = []
-    arr.forEach(elem => {ret[elem[pk]] = elem})
+    arr.forEach(elem => {
+        ret[elem[pk]] = elem
+    })
     for (let retKey in ret) {
-        // @ts-ignore
-        result.push(ret[retKey])
+        if (ret.hasOwnProperty(retKey))
+            result.push(ret[retKey])
     }
     return result
 }
 
-export const edgesUnique = (arr: []) => {
+export const edgesUnique = (arr: any[]) => {
     return Array.from(new Set(arr))
 }
 

@@ -5,11 +5,8 @@ import Graphin from '@antv/graphin';
 
 import {FishEye, MiniMap, Toolbar, Tooltip} from '@antv/graphin-components';
 
-// import 'antd/dist/antd.css'; //避免与全局样式污染
-// 引入Graphin CSS
-
 import {GraphinData} from "@antv/graphin/es";
-import {extract_links, extract_nodes, neo_query} from "../utils/neo-operations";
+import {neoQuery} from "../utils/neoOperations";
 import {AntdTooltip} from "./AntdTooltip";
 import {edgesUnique, dictUnique} from "../utils/useful";
 import {CustomContent} from "./ToolbarCustom";
@@ -18,6 +15,10 @@ import CypherFunctionalPanel from "./CypherFunctionalPanel";
 
 const nodeSize = 40;
 
+interface autoComplete {
+    label: string,
+    options: { value: string, label?: string }[]
+}
 
 const defaultLayout = {
     type: 'grid',
@@ -36,59 +37,57 @@ export const DynamicLayout = () => {
     const [layoutPanelVisible, setLayoutPanelVisible] = useState(true);
     const [funcPanelVisible, setFuncPanelVisible] = useState(false);
 
-    const updateLayout = (previousType: any, type: any, defaultLayoutConfigs: any) => {
-        console.log(previousType, type, defaultLayoutConfigs);
-        setLayout({...defaultLayoutConfigs, type})
-    };
-
-
-    // const handleClick = () => {
-    //     setVisible(true);
-    // };
-    const handleClose = () => {
-        setVisible(false);
-    };
-
-
     useEffect(() => {
         // @ts-ignore
         const {graph} = graphinRef.current;
 
         // let query = 'MATCH p=()-[r:GeneIndications]->() RETURN p LIMIT 25'
         let query = 'MATCH (n:Herb) RETURN n LIMIT 25'
-        neo_query(query).then(
+        neoQuery(query).then(
             result => {
+                setGraphData(result)
+                sessionStorage.setItem('graph', JSON.stringify(result))
                 console.log(result)
-                // @ts-ignore
-                let raw_links = result.records.filter(elem => elem.keys[0] === 'p')
-                // @ts-ignore
-                let raw_nodes = result.records.filter(elem => elem.keys[0] === 'n')
-                let {edges, nodes_1} = extract_links(raw_links)
-                let nodes_2 = extract_nodes(raw_nodes)
-                let ret = {'nodes': [...nodes_1, ...nodes_2], 'edges': edges}
-                setGraphData(ret)
-                sessionStorage.setItem('graph', JSON.stringify(ret))
-                console.log(ret)
             }
         )
 
         graph.on('node:dblclick', (evt: { item: any; target: any; }) => {
             const item = evt.item; // 被操作的节点 item
             let sub_query = "MATCH r=(s)-->() WHERE ID(s) = " + item.getModel()["queryId"] + " RETURN r"
-            neo_query(sub_query).then(
-                result => {
-                    let tmp_graph = JSON.parse(sessionStorage.getItem('graph') as string)
-                    let {edges, nodes_1} = extract_links(result.records)
-                    let res_node = [...tmp_graph.nodes, ...nodes_1]
-                    let res_edge = [...tmp_graph.edges, ...edges]
-                    // @ts-ignore
-                    let ret = {'nodes': dictUnique(res_node, 'queryId'), 'edges': edgesUnique(res_edge)}
-                    setGraphData(ret)
-                    sessionStorage.setItem('graph', JSON.stringify(ret))
-                }
-            )
+            neoQuery(sub_query).then(result => {
+                let tmp_graph = JSON.parse(sessionStorage.getItem('graph') as string)
+                let res_node = [...tmp_graph.nodes, ...result.nodes]
+                let res_edge = [...tmp_graph.edges, ...result.edges]
+                let ret = {'nodes': dictUnique(res_node, 'queryId'), 'edges': edgesUnique(res_edge)}
+                setGraphData(ret)
+                console.log('graph data', graphData)
+                sessionStorage.setItem('graph', JSON.stringify(result))
+            })
         });
     }, []);
+
+    const updateLayout = (previousType: any, type: any, defaultLayoutConfigs: any) => {
+        console.log(previousType, type, defaultLayoutConfigs);
+        setLayout({...defaultLayoutConfigs, type})
+    };
+
+    const handleClose = () => {
+        setVisible(false);
+    };
+
+    const renderOptions = () => {
+        let options: autoComplete[] = []
+        // debugger
+        graphData.nodes.forEach(node => {
+            let type_id = options.findIndex(r => node.nodeType === r.label)
+            if (type_id === -1) {
+                options.push({label: node.nodeType, options: [{value: node.s_name}]})
+            } else {
+                options[type_id]['options'].push({value: node.s_name})
+            }
+        })
+        return options
+    }
 
     // const layout = layouts.find(item => item.type === type);
     return (
@@ -100,7 +99,8 @@ export const DynamicLayout = () => {
                 {/*<LayoutSelector>*/}
                 <LayoutSelectorPanel isVisible={layoutPanelVisible} setVisible={setLayoutPanelVisible}
                                      updateLayout={updateLayout}/>
-                <CypherFunctionalPanel isVisible={funcPanelVisible} setVisible={setFuncPanelVisible}/>
+                <CypherFunctionalPanel isVisible={funcPanelVisible} setVisible={setFuncPanelVisible}
+                                       nodeOptions={renderOptions()} setGraphData={setGraphData}/>
                 {/*</LayoutSelector>*/}
                 <Tooltip
                     bindType="node"
