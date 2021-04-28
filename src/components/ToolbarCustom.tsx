@@ -10,7 +10,7 @@ import {
 } from '@ant-design/icons';
 
 // @ts-ignore
-export const CustomContent = ({isPanelVisible, setIsPanelVisible, visible, setVisible}) => {
+export const CustomContent = ({layoutPanelVisible, setLayoutPanelVisible, visible, setVisible, funcPanelVisible,setFuncPanelVisible}) => {
     const {apis} = React.useContext(GraphinContext);
     const {handleZoomIn, handleZoomOut} = apis;
     const options = [
@@ -43,7 +43,8 @@ export const CustomContent = ({isPanelVisible, setIsPanelVisible, visible, setVi
             name: <PieChartOutlined/>,
             description: '可视化设置',
             action: () => {
-                setIsPanelVisible(!isPanelVisible)
+                setLayoutPanelVisible(!layoutPanelVisible)
+                setFuncPanelVisible(true)
             }
         },
         {
@@ -51,7 +52,8 @@ export const CustomContent = ({isPanelVisible, setIsPanelVisible, visible, setVi
             name: <FunctionOutlined/>,
             description: '功能面板',
             action: () => {
-
+                setFuncPanelVisible(!funcPanelVisible)
+                setLayoutPanelVisible(true)
             }
         }
     ];

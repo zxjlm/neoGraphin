@@ -4,13 +4,11 @@ import {LayoutConfig, LayoutItem} from '@antv/graphin-components';
 import React, {useCallback, useContext, useEffect, useState} from 'react';
 import {Col, Divider, Dropdown, Form, Menu, Row, Tooltip} from 'antd';
 import {CloseOutlined, DownOutlined} from '@ant-design/icons';
-import graphLayoutConfig from './defaultLayoutConfig';
+import graphLayoutConfig from '../utils/defaultLayoutConfig';
 
 import '../css/panel.css';
 
 import {debounce} from 'lodash';
-
-// console.log(styles)
 
 const defaultValue = {};
 

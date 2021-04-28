@@ -14,6 +14,7 @@ import {AntdTooltip} from "./AntdTooltip";
 import {edgesUnique, dictUnique} from "../utils/useful";
 import {CustomContent} from "./ToolbarCustom";
 import LayoutSelectorPanel from "./LayoutSelectorPanel";
+import CypherFunctionalPanel from "./CypherFunctionalPanel";
 
 const nodeSize = 40;
 
@@ -32,7 +33,8 @@ export const DynamicLayout = () => {
     const [layout, setLayout] = React.useState({...defaultLayout, animation: false});
     const [graphData, setGraphData] = useState<GraphinData>({'nodes': [], 'edges': []} as GraphinData);
     const [visible, setVisible] = React.useState(false);
-    const [isPanelVisible, setIsPanelVisible] = useState(true);
+    const [layoutPanelVisible, setLayoutPanelVisible] = useState(true);
+    const [funcPanelVisible, setFuncPanelVisible] = useState(false);
 
     const updateLayout = (previousType: any, type: any, defaultLayoutConfigs: any) => {
         console.log(previousType, type, defaultLayoutConfigs);
@@ -96,8 +98,9 @@ export const DynamicLayout = () => {
                      ref={graphinRef}
             >
                 {/*<LayoutSelector>*/}
-                <LayoutSelectorPanel isVisible={isPanelVisible} setVisible={setIsPanelVisible}
+                <LayoutSelectorPanel isVisible={layoutPanelVisible} setVisible={setLayoutPanelVisible}
                                      updateLayout={updateLayout}/>
+                <CypherFunctionalPanel isVisible={funcPanelVisible} setVisible={setFuncPanelVisible}/>
                 {/*</LayoutSelector>*/}
                 <Tooltip
                     bindType="node"
@@ -108,8 +111,9 @@ export const DynamicLayout = () => {
                     <AntdTooltip/>
                 </Tooltip>
                 <Toolbar direction="horizontal" style={{position: 'absolute', right: '250px'}}>
-                    <CustomContent isPanelVisible={isPanelVisible} setIsPanelVisible={setIsPanelVisible}
-                                   visible={visible} setVisible={setVisible}/>
+                    <CustomContent layoutPanelVisible={layoutPanelVisible} setLayoutPanelVisible={setLayoutPanelVisible}
+                                   visible={visible} setVisible={setVisible} funcPanelVisible={funcPanelVisible}
+                                   setFuncPanelVisible={setFuncPanelVisible}/>
                 </Toolbar>
                 <MiniMap visible={true}/>
                 {/*<ContextMenu bindType="canvas">*/}
