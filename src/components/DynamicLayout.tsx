@@ -39,7 +39,6 @@ export const DynamicLayout = () => {
     const [visible, setVisible] = React.useState(false);
     const [layoutPanelVisible, setLayoutPanelVisible] = useState(true);
     const [funcPanelVisible, setFuncPanelVisible] = useState(false);
-    const [autoCompleteOptions, setAutoCompleteOptions] = useState<autoComplete[]>([]);
 
     useEffect(() => {
         // @ts-ignore
