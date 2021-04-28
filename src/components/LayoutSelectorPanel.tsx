@@ -1,9 +1,9 @@
 // @ts-nocheck
 import * as Graphin from '@antv/graphin';
 import {LayoutConfig, LayoutItem} from '@antv/graphin-components';
-import React, {useState, useEffect, useCallback, useContext} from 'react';
-import {Row, Col, Form, Divider, Tooltip, Dropdown, Menu} from 'antd';
-import {DownOutlined, CloseOutlined} from '@ant-design/icons';
+import React, {useCallback, useContext, useEffect, useState} from 'react';
+import {Col, Divider, Dropdown, Form, Menu, Row, Tooltip} from 'antd';
+import {CloseOutlined, DownOutlined} from '@ant-design/icons';
 import graphLayoutConfig from './defaultLayoutConfig';
 
 import '../css/panel.css';
@@ -124,11 +124,11 @@ const LayoutConfigPanel = ({isVisible,setVisible,updateLayout, layoutConfig = gr
 
     // 更新布局参数
     const updateLayoutConfig = (changedField, allFields, layoutType) => {
-        const currentFileds = {...allFields, ...changedField};
-        Object.keys(currentFileds).forEach(key => {
-            defaultValue[key] = currentFileds[key];
+        const currentFields = {...allFields, ...changedField};
+        Object.keys(currentFields).forEach(key => {
+            defaultValue[key] = currentFields[key];
         });
-        const {x, y, ...others} = currentFileds;
+        const {x, y, ...others} = currentFields;
         const config = others;
         if (layoutType === 'grid') {
             config.begin = [x, y];
@@ -141,7 +141,7 @@ const LayoutConfigPanel = ({isVisible,setVisible,updateLayout, layoutConfig = gr
         form.setFieldsValue(defaultValue);
     };
 
-    // 更新布局参数需要 debounce，使用 callback 来限流
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     const debounceChange = useCallback(
         debounce(
             (changedField, allFields, layoutType) => updateLayoutConfig(changedField, allFields, layoutType),
@@ -152,7 +152,7 @@ const LayoutConfigPanel = ({isVisible,setVisible,updateLayout, layoutConfig = gr
 
     /**
      * 当字段值改变后，自动更新布局
-     * @param changedFiled 改变了的字段
+     * @param changedField
      * @param allFields 所有字段
      */
     const handleFieldValueChange = (changedField, allFields) => {
@@ -164,7 +164,7 @@ const LayoutConfigPanel = ({isVisible,setVisible,updateLayout, layoutConfig = gr
     // 选中的布局类型变化时，更新布局参数界面、改变默认参数、
     useEffect(() => {
         const currentContent = currentLayout.map((config: LayoutConfig) => {
-            const items = config.items.map((item: LayoutItem, index: number) => {
+            return config.items.map((item: LayoutItem, index: number) => {
                 const {component: Component, isSwitch, defaultValue: value, labelZh, ...otherProps} = item;
                 const key = `${config.title}-${index}`;
                 defaultValue[item.label] = item.defaultValue;
@@ -181,6 +181,7 @@ const LayoutConfigPanel = ({isVisible,setVisible,updateLayout, layoutConfig = gr
                 return (
                     <Form.Item
                         id={item.label}
+                        name={item.label}
                         key={key}
                         label={
                             <Tooltip title={item.description}>
@@ -194,8 +195,6 @@ const LayoutConfigPanel = ({isVisible,setVisible,updateLayout, layoutConfig = gr
                     </Form.Item>
                 );
             });
-
-            return items;
         });
         form.setFieldsValue(defaultValue);
         const formContent = (
@@ -204,6 +203,7 @@ const LayoutConfigPanel = ({isVisible,setVisible,updateLayout, layoutConfig = gr
                     form={form}
                     name={`${currentLayoutType}-config-form`}
                     initialValues={defaultValue}
+                    className={'diy-form'}
                     onValuesChange={(changedField, allFields) => {
                         handleFieldValueChange(changedField, allFields);
                     }}

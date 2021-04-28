@@ -3,8 +3,7 @@ import React, {createRef, useEffect, useState} from 'react';
 
 import Graphin from '@antv/graphin';
 
-import {Card, Menu} from 'antd';
-import {ContextMenu, FishEye, LayoutSelector, MiniMap, Toolbar, Tooltip} from '@antv/graphin-components';
+import {FishEye, MiniMap, Toolbar, Tooltip} from '@antv/graphin-components';
 
 // import 'antd/dist/antd.css'; //避免与全局样式污染
 // 引入Graphin CSS
@@ -37,13 +36,13 @@ export const DynamicLayout = () => {
 
     const updateLayout = (previousType: any, type: any, defaultLayoutConfigs: any) => {
         console.log(previousType, type, defaultLayoutConfigs);
-        setLayout({...defaultLayout, type})
+        setLayout({...defaultLayoutConfigs, type})
     };
 
 
-    const handleClick = () => {
-        setVisible(true);
-    };
+    // const handleClick = () => {
+    //     setVisible(true);
+    // };
     const handleClose = () => {
         setVisible(false);
     };
@@ -109,14 +108,15 @@ export const DynamicLayout = () => {
                     <AntdTooltip/>
                 </Tooltip>
                 <Toolbar direction="horizontal" style={{position: 'absolute', right: '250px'}}>
-                    <CustomContent isPanelVisible={isPanelVisible} setIsPanelVisible={setIsPanelVisible}/>
+                    <CustomContent isPanelVisible={isPanelVisible} setIsPanelVisible={setIsPanelVisible}
+                                   visible={visible} setVisible={setVisible}/>
                 </Toolbar>
                 <MiniMap visible={true}/>
-                <ContextMenu bindType="canvas">
-                    <Menu>
-                        <Menu.Item onClick={handleClick}>开启 FishEye</Menu.Item>
-                    </Menu>
-                </ContextMenu>
+                {/*<ContextMenu bindType="canvas">*/}
+                {/*    <Menu>*/}
+                {/*        <Menu.Item onClick={handleClick}>开启 FishEye</Menu.Item>*/}
+                {/*    </Menu>*/}
+                {/*</ContextMenu>*/}
                 <FishEye options={{}} visible={visible} handleEscListener={handleClose}/>
             </Graphin>
         </div>

@@ -5,15 +5,23 @@ import {
     ZoomOutOutlined,
     ZoomInOutlined,
     PieChartOutlined,
-    DeleteOutlined,
-    VideoCameraAddOutlined,
+    AimOutlined,
+    FunctionOutlined
 } from '@ant-design/icons';
 
 // @ts-ignore
-export const CustomContent = ({isPanelVisible,setIsPanelVisible}) => {
+export const CustomContent = ({isPanelVisible, setIsPanelVisible, visible, setVisible}) => {
     const {apis} = React.useContext(GraphinContext);
     const {handleZoomIn, handleZoomOut} = apis;
     const options = [
+        {
+            key: 'fishEye',
+            name: <AimOutlined/>,
+            description: '鱼眼放大镜(ESC取消)',
+            action: () => {
+                setVisible(!visible);
+            },
+        },
         {
             key: 'zoomOut',
             name: <ZoomInOutlined/>,
@@ -38,6 +46,14 @@ export const CustomContent = ({isPanelVisible,setIsPanelVisible}) => {
                 setIsPanelVisible(!isPanelVisible)
             }
         },
+        {
+            key: 'funcPanel',
+            name: <FunctionOutlined/>,
+            description: '功能面板',
+            action: () => {
+
+            }
+        }
     ];
     return (
         <div>
