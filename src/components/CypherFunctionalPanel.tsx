@@ -33,11 +33,10 @@ const CypherFunctionalPanel = ({isVisible, setVisible, nodeOptions, setGraphData
 
     const onSelect = (selectText) => {
         console.log(selectText)
-        neoQuery(`MATCH (n:Herb) WHERE n.s_name=${selectText} RETURN n`).then(
+        neoQuery(`MATCH (n:Herb) WHERE n.s_name='${selectText}' RETURN n`).then(
             result => {
-                setGraphData(ret)
-                sessionStorage.setItem('graph', JSON.stringify(ret))
-                console.log(ret)
+                setGraphData(result)
+                sessionStorage.setItem('graph', JSON.stringify(result))
             }
         )
     }
