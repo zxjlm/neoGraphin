@@ -7,17 +7,12 @@ import '../css/panel.css';
 
 import {AppleOutlined, AndroidOutlined} from '@ant-design/icons';
 import {AutoCompleteComp} from "./AutoCompleteComp";
+import {TreeSelector} from "./TreeSelector";
 
 const {TabPane} = Tabs;
 
-const CypherFunctionalPanel = ({isVisible, setVisible, nodeOptions, setGraphData}) => {
+const CypherFunctionalPanel = ({isVisible, setVisible, nodeOptions, treeOptions, setGraphData}) => {
     console.log('cypher', nodeOptions)
-
-
-    // useMemo(() => {
-    //     setOptions(nodeOptions)
-    // }, [nodeOptions]);
-
 
     return (
         <div
@@ -69,7 +64,7 @@ const CypherFunctionalPanel = ({isVisible, setVisible, nodeOptions, setGraphData
                             }
                             key="2"
                         >
-                            Tab 2
+                            <TreeSelector options={treeOptions}/>
                         </TabPane>
                     </Tabs>
                 </Col>

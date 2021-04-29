@@ -6,8 +6,9 @@ import {debounce} from 'lodash';
 
 // @ts-ignore
 export const AutoCompleteComp = ({nodeOptions, setGraphData}) => {
-    console.log('auto', nodeOptions)
     const [options, setOptions] = useState(nodeOptions);
+
+    console.log('options', options)
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
     const debounceSearch = useCallback(

@@ -8,12 +8,12 @@ import {FishEye, MiniMap, Toolbar, Tooltip} from '@antv/graphin-components';
 import {GraphinData} from "@antv/graphin/es";
 import {neoQuery} from "../utils/neoOperations";
 import {AntdTooltip} from "./AntdTooltip";
-import {edgesUnique, dictUnique} from "../utils/useful";
+import {edgesUnique, dictUnique, arrSubtraction} from "../utils/useful";
 import {CustomContent} from "./ToolbarCustom";
 import LayoutSelectorPanel from "./LayoutSelectorPanel";
 import CypherFunctionalPanel from "./CypherFunctionalPanel";
-import {useDispatch} from "react-redux";
 import {initGraph, queryGraph} from "../reducer/neo4jReducer";
+import {DataNode} from "rc-tree-select/lib/interface";
 
 const nodeSize = 40;
 
@@ -32,7 +32,6 @@ const defaultLayout = {
 
 export const DynamicLayout = () => {
     const graphinRef = createRef<Graphin>();
-    const dispatch = useDispatch()
 
     const [layout, setLayout] = React.useState({...defaultLayout, animation: false});
     const [graphData, setGraphData] = useState<GraphinData>({'nodes': [], 'edges': []} as GraphinData);
@@ -44,18 +43,17 @@ export const DynamicLayout = () => {
         // @ts-ignore
         const {graph} = graphinRef.current;
 
-        dispatch(initGraph('111s'))
         // let query = 'MATCH p=()-[r:GeneIndications]->() RETURN p LIMIT 25'
         let query = 'MATCH (n:Herb) RETURN n LIMIT 25'
         neoQuery(query).then(
             result => {
                 setGraphData(result)
                 sessionStorage.setItem('graph', JSON.stringify(result))
+                renderTreeOptions()
             }
         )
 
         graph.on('node:dblclick', (evt: { item: any; target: any; }) => {
-            dispatch(queryGraph('222'))
             const item = evt.item; // 被操作的节点 item
             let sub_query = "MATCH r=(s)-->() WHERE ID(s) = " + item.getModel()["queryId"] + " RETURN r"
             neoQuery(sub_query).then(result => {
@@ -63,7 +61,7 @@ export const DynamicLayout = () => {
                 let res_node = [...tmp_graph.nodes, ...result.nodes]
                 let res_edge = [...tmp_graph.edges, ...result.edges]
                 let ret = {'nodes': dictUnique(res_node, 'queryId'), 'edges': edgesUnique(res_edge)}
-                console.log(tmp_graph,ret)
+                console.log(tmp_graph, ret)
                 setGraphData(ret)
                 sessionStorage.setItem('graph', JSON.stringify(ret))
             })
@@ -79,9 +77,8 @@ export const DynamicLayout = () => {
         setVisible(false);
     };
 
-    const renderOptions = () => {
+    const renderNodeOptions = () => {
         let options: autoComplete[] = []
-        // debugger
         graphData.nodes.forEach(node => {
             let type_id = options.findIndex(r => node.nodeType === r.label)
             if (type_id === -1) {
@@ -91,6 +88,54 @@ export const DynamicLayout = () => {
             }
         })
         return options
+    }
+
+    const renderTreeOptions = () => {
+        debugger
+        let options: DataNode[] = [];
+        let newNodes: { [index: string]: string } = {}
+        let newEdges: { [index: string]: string[] } = {}
+        let targetEdges: string[] = []
+        // 构建节点字典表
+        graphData.nodes.forEach(node => {
+            newNodes[node.id] = node.s_name
+        })
+        //构建关系字典表
+        graphData.edges.forEach(edge => {
+            targetEdges.push(edge.target)
+            if (newEdges.hasOwnProperty(edge.source))
+                newEdges[edge.source].push(edge.target)
+            else newEdges[edge.source] = [edge.target]
+        })
+        // 寻找根节点
+        let root = arrSubtraction(Object.keys(newNodes), edgesUnique(targetEdges))
+        // 组建搜索树
+        root.forEach(nodeId => {
+            // @ts-ignore
+            options.push(nodeRecurrence(nodeId, nodeId, newNodes, newEdges))
+        })
+        console.log('tree option ', options)
+        return options
+    }
+
+    const nodeRecurrence = (nodeId: string, nodeValue: string, newNodes: { [index: string]: string }, newEdges: { [index: string]: string[] }) => {
+        // @ts-ignore
+        if (Object.keys(newEdges).findIndex(elem => elem === nodeId) === -1) {
+            return {
+                title: newNodes[nodeId],
+                value: nodeValue,
+            }
+        } else {
+            let tmp: { title: string, value: string, children: any[] } = {
+                title: newNodes[nodeId],
+                value: nodeValue,
+                children: []
+            }
+            newEdges[nodeId].forEach(targetNodeId => {
+                tmp.children.push(nodeRecurrence(targetNodeId, nodeValue + '==>' + targetNodeId, newNodes, newEdges))
+            })
+            return tmp
+        }
     }
 
     // const layout = layouts.find(item => item.type === type);
@@ -104,7 +149,8 @@ export const DynamicLayout = () => {
                 <LayoutSelectorPanel isVisible={layoutPanelVisible} setVisible={setLayoutPanelVisible}
                                      updateLayout={updateLayout}/>
                 <CypherFunctionalPanel isVisible={funcPanelVisible} setVisible={setFuncPanelVisible}
-                                       nodeOptions={renderOptions()} setGraphData={setGraphData}/>
+                                       nodeOptions={renderNodeOptions()} setGraphData={setGraphData}
+                                       treeOptions={renderTreeOptions()}/>
                 {/*</LayoutSelector>*/}
                 <Tooltip
                     bindType="node"
