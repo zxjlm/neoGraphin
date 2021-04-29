@@ -22,12 +22,23 @@ export const dictUnique = (arr: any[], key: string): any[] => {
 }
 
 /**
- * 边的去重(一般性列表去重)
+ * 边去重
  * @param arr
  */
-export const edgesUnique = (arr: any[]) => {
+export const edgesUnique = (arr: { source: string, target: string }[]) => {
+    let tmp = arr.map(elem => ({...elem, 'sum': elem.source + elem.target}))
+    tmp = dictUnique(tmp, 'sum')
+    return tmp.map(elem => ({source: elem.source, target: elem.target}))
+}
+
+/**
+ * 一般性列表去重
+ * @param arr
+ */
+export const normalUnique = (arr: any[]) => {
     return Array.from(new Set(arr))
 }
+
 
 /**
  * 数组相减的方法 - 使用es新特性
