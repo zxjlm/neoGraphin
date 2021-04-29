@@ -1,5 +1,8 @@
 import {QueryResult} from "neo4j-driver/types/result";
 import Record from "neo4j-driver/types/record";
+import {PathSegment} from "neo4j-driver";
+import Integer from "neo4j-driver/types/integer";
+import {Node, NumberOrInteger, Relationship} from "neo4j-driver/types/graph-types";
 
 interface neoQueryType {
     nodes: any[]
@@ -36,29 +39,46 @@ export const executeCypher = async (query: string): Promise<QueryResult> => {
     return result
 }
 
-function extract_links(result: Record[]) {
-    debugger
-    let edges: { source: any; target: any; }[] = []
+declare class MyNode<T extends NumberOrInteger = Integer> {
+    identity: T
+    labels: string[]
+    properties: { id: string, s_name: string }
+
+    constructor(identity: T, labels: string[], properties: object)
+
+    toString(): string
+}
+
+
+declare class MyPathSegment<T extends NumberOrInteger = Integer> {
+    start: MyNode<T>
+    relationship: Relationship<T>
+    end: MyNode<T>
+
+    constructor(start: Node<T>, rel: Relationship<T>, end: Node<T>)
+}
+
+
+const extract_segments = (result: MyPathSegment[]) => {
+    let edges: { source: any; target: any; style: {} }[] = []
     let nodes: any = {}
     result.forEach(r => {
-        let node_start = r.get(0).start;
-        let node_end = r.get(0).end;
-        edges.push({source: node_start.properties.id, target: node_end.properties.id})
-        nodes[node_start.identity] = {
-            ...node_start.properties,
+        edges.push({source: r.start.properties.id, target: r.end.properties.id, style: {label: r.relationship.type}})
+        nodes[r.start.identity.toString(10)] = {
+            ...r.start.properties,
             style: {
-                keyshape: {fill: colorMap[node_start.labels[0]], stroke: colorMap[node_start.labels[0]]},
-                label: {value: short_node(node_start.properties.s_name)}
+                keyshape: {fill: colorMap[r.start.labels[0]], stroke: colorMap[r.start.labels[0]]},
+                label: {value: short_node(r.start.properties.s_name)}
             },
-            nodeType: node_start.labels[0]
+            nodeType: r.start.labels[0]
         }
-        nodes[node_end.identity] = {
-            ...node_end.properties,
+        nodes[r.end.identity.toString(10)] = {
+            ...r.end.properties,
             style: {
-                keyshape: {fill: colorMap[node_end.labels[0]], stroke: colorMap[node_end.labels[0]]},
-                label: {value: short_node(node_end.properties.s_name)}
+                keyshape: {fill: colorMap[r.end.labels[0]], stroke: colorMap[r.end.labels[0]]},
+                label: {value: short_node(r.end.properties.s_name)}
             },
-            nodeType: node_end.labels[0]
+            nodeType: r.end.labels[0]
         }
     })
     let nodes_1 = []
@@ -69,7 +89,16 @@ function extract_links(result: Record[]) {
     return {edges, nodes_1}
 }
 
-export function extract_nodes(nodes: Record[]) {
+const extract_links = (result: Record[]) => {
+    let segments: MyPathSegment[] = []
+    result.forEach(elem => {
+        // @ts-ignore
+        segments = [...elem._fields[0].segments, ...segments]
+    })
+    return extract_segments(segments)
+}
+
+const extract_nodes = (nodes: Record[]) => {
     return nodes.map(n => ({
         ...n.get(0).properties,
         style: {
@@ -79,6 +108,10 @@ export function extract_nodes(nodes: Record[]) {
         queryId: n.get(0).identity.toString(),
         nodeType: n.get(0).labels[0]
     }))
+}
+
+export const extract_path = (segments: MyPathSegment[]) => {
+
 }
 
 /**
@@ -94,9 +127,6 @@ export const neoQuery = async (query: string): Promise<neoQueryType> => {
     return {'nodes': [...nodes_1, ...nodes_2], 'edges': edges}
 }
 
-export const extract_path = (segments: { end: any, relation: any, start: any }[]) => {
-
-}
 
 function short_node(name: string) {
     if (name.length > 6) {
