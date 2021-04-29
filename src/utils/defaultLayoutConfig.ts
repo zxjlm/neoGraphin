@@ -234,6 +234,14 @@ const graphLayoutConfig: {
             ],
         },
     ],
+    'graphLayout_graphin-force': [
+        {
+            title: 'graphin-force',
+            type: 'graphin-force',
+            icon: BranchesOutlined,
+            items: [],
+        },
+    ],
     graphLayout_gForce: [
         {
             title: 'GForce',
