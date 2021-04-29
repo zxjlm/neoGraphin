@@ -43,7 +43,7 @@ function extract_links(result: Record[]) {
         nodes[node_start.identity] = {
             ...node_start.properties,
             style: {
-                keyshape: {fill: colorMap[node_start.labels[0]]},
+                keyshape: {fill: colorMap[node_start.labels[0]], stroke: colorMap[node_start.labels[0]]},
                 label: {value: short_node(node_start.properties.s_name)}
             },
             nodeType: node_start.labels[0]
@@ -51,7 +51,7 @@ function extract_links(result: Record[]) {
         nodes[node_end.identity] = {
             ...node_end.properties,
             style: {
-                keyshape: {fill: colorMap[node_end.labels[0]]},
+                keyshape: {fill: colorMap[node_end.labels[0]], stroke: colorMap[node_end.labels[0]]},
                 label: {value: short_node(node_end.properties.s_name)}
             },
             nodeType: node_end.labels[0]
@@ -68,7 +68,10 @@ function extract_links(result: Record[]) {
 export function extract_nodes(nodes: Record[]) {
     return nodes.map(n => ({
         ...n.get(0).properties,
-        style: {keyshape: {fill: colorMap[n.get(0).labels[0]]}, label: {value: n.get(0).properties.s_name}},
+        style: {
+            keyshape: {fill: colorMap[n.get(0).labels[0]], stroke: colorMap[n.get(0).labels[0]]},
+            label: {value: n.get(0).properties.s_name}
+        },
         queryId: n.get(0).identity.toString(),
         nodeType: n.get(0).labels[0]
     }))

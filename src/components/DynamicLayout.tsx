@@ -3,12 +3,12 @@ import React, {createRef, useEffect, useMemo, useState} from 'react';
 
 import Graphin from '@antv/graphin';
 
-import {FishEye, MiniMap, Toolbar, Tooltip} from '@antv/graphin-components';
+import {FishEye, Legend, MiniMap, Toolbar, Tooltip} from '@antv/graphin-components';
 
 import {GraphinData} from "@antv/graphin/es";
 import {neoQuery} from "../utils/neoOperations";
 import {AntdTooltip} from "./AntdTooltip";
-import {edgesUnique, dictUnique, arrSubtraction} from "../utils/useful";
+import {dictUnique, arrSubtraction, edgesUnique, normalUnique} from "../utils/useful";
 import {CustomContent} from "./ToolbarCustom";
 import LayoutSelectorPanel from "./LayoutSelectorPanel";
 import CypherFunctionalPanel from "./CypherFunctionalPanel";
@@ -31,6 +31,7 @@ const defaultLayout = {
 };
 
 export const DynamicLayout = () => {
+    console.log('mount dyn')
     const graphinRef = createRef<Graphin>();
 
     const [layout, setLayout] = React.useState({...defaultLayout, animation: false});
@@ -40,8 +41,7 @@ export const DynamicLayout = () => {
     const [funcPanelVisible, setFuncPanelVisible] = useState(false);
 
     useEffect(() => {
-        // @ts-ignore
-        const {graph} = graphinRef.current;
+        console.log('dyn use effect')
 
         // let query = 'MATCH p=()-[r:GeneIndications]->() RETURN p LIMIT 25'
         let query = 'MATCH (n:Herb) RETURN n LIMIT 25'
@@ -49,9 +49,13 @@ export const DynamicLayout = () => {
             result => {
                 setGraphData(result)
                 sessionStorage.setItem('graph', JSON.stringify(result))
-                renderTreeOptions()
             }
         )
+    }, []);
+
+    useEffect(() => {
+        // @ts-ignore
+        const {graph} = graphinRef.current;
 
         graph.on('node:dblclick', (evt: { item: any; target: any; }) => {
             const item = evt.item; // 被操作的节点 item
@@ -61,12 +65,13 @@ export const DynamicLayout = () => {
                 let res_node = [...tmp_graph.nodes, ...result.nodes]
                 let res_edge = [...tmp_graph.edges, ...result.edges]
                 let ret = {'nodes': dictUnique(res_node, 'queryId'), 'edges': edgesUnique(res_edge)}
-                console.log(tmp_graph, ret)
+                console.log('new data', tmp_graph, ret)
                 setGraphData(ret)
                 sessionStorage.setItem('graph', JSON.stringify(ret))
             })
         });
-    }, []);
+    }, [graphData, graphinRef]);
+
 
     const updateLayout = (previousType: any, type: any, defaultLayoutConfigs: any) => {
         console.log(previousType, type, defaultLayoutConfigs);
@@ -91,7 +96,6 @@ export const DynamicLayout = () => {
     }
 
     const renderTreeOptions = () => {
-        debugger
         let options: DataNode[] = [];
         let newNodes: { [index: string]: string } = {}
         let newEdges: { [index: string]: string[] } = {}
@@ -108,7 +112,7 @@ export const DynamicLayout = () => {
             else newEdges[edge.source] = [edge.target]
         })
         // 寻找根节点
-        let root = arrSubtraction(Object.keys(newNodes), edgesUnique(targetEdges))
+        let root = arrSubtraction(Object.keys(newNodes), normalUnique(targetEdges))
         // 组建搜索树
         root.forEach(nodeId => {
             // @ts-ignore
@@ -123,12 +127,12 @@ export const DynamicLayout = () => {
         if (Object.keys(newEdges).findIndex(elem => elem === nodeId) === -1) {
             return {
                 title: newNodes[nodeId],
-                value: nodeValue,
+                value: nodeValue + newNodes[nodeId],
             }
         } else {
             let tmp: { title: string, value: string, children: any[] } = {
                 title: newNodes[nodeId],
-                value: nodeValue,
+                value: nodeValue + newNodes[nodeId],
                 children: []
             }
             newEdges[nodeId].forEach(targetNodeId => {
@@ -144,8 +148,13 @@ export const DynamicLayout = () => {
             <Graphin data={graphData}
                      layout={layout}
                      ref={graphinRef}
+                // theme={{: ''}}
+                     style={{height: '700px', width: '95%'}}
             >
                 {/*<LayoutSelector>*/}
+                <Legend bindType="node" sortKey="nodeType" colorKey="style.keyshape.stroke" style={{right: '10%'}}>
+                    <Legend.Node/>
+                </Legend>
                 <LayoutSelectorPanel isVisible={layoutPanelVisible} setVisible={setLayoutPanelVisible}
                                      updateLayout={updateLayout}/>
                 <CypherFunctionalPanel isVisible={funcPanelVisible} setVisible={setFuncPanelVisible}
@@ -160,17 +169,12 @@ export const DynamicLayout = () => {
                 >
                     <AntdTooltip/>
                 </Tooltip>
-                <Toolbar direction="horizontal" style={{position: 'absolute', right: '250px'}}>
+                <Toolbar direction="horizontal" style={{position: 'absolute', right: '80%'}}>
                     <CustomContent layoutPanelVisible={layoutPanelVisible} setLayoutPanelVisible={setLayoutPanelVisible}
                                    visible={visible} setVisible={setVisible} funcPanelVisible={funcPanelVisible}
                                    setFuncPanelVisible={setFuncPanelVisible}/>
                 </Toolbar>
                 <MiniMap visible={true}/>
-                {/*<ContextMenu bindType="canvas">*/}
-                {/*    <Menu>*/}
-                {/*        <Menu.Item onClick={handleClick}>开启 FishEye</Menu.Item>*/}
-                {/*    </Menu>*/}
-                {/*</ContextMenu>*/}
                 <FishEye options={{}} visible={visible} handleEscListener={handleClose}/>
             </Graphin>
         </div>
