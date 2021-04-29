@@ -5,18 +5,35 @@ import {
     ZoomOutOutlined,
     ZoomInOutlined,
     PieChartOutlined,
-    AimOutlined,
-    FunctionOutlined
+    FunctionOutlined,
+    EyeOutlined,
+    FileAddOutlined
 } from '@ant-design/icons';
 
-// @ts-ignore
-export const CustomContent = ({layoutPanelVisible, setLayoutPanelVisible, visible, setVisible, funcPanelVisible,setFuncPanelVisible}) => {
+
+interface customContentProps {
+    layoutPanelVisible: boolean,
+    setLayoutPanelVisible: (state:boolean) => void,
+    visible: boolean,
+    setVisible: (state:boolean) => void,
+    funcPanelVisible: boolean,
+    setFuncPanelVisible: (state:boolean) => void
+}
+
+export const CustomContent = ({
+                                  layoutPanelVisible,
+                                  setLayoutPanelVisible,
+                                  visible,
+                                  setVisible,
+                                  funcPanelVisible,
+                                  setFuncPanelVisible
+                              }: customContentProps) => {
     const {apis} = React.useContext(GraphinContext);
     const {handleZoomIn, handleZoomOut} = apis;
     const options = [
         {
             key: 'fishEye',
-            name: <AimOutlined/>,
+            name: <EyeOutlined/>,
             description: '鱼眼放大镜(ESC取消)',
             action: () => {
                 setVisible(!visible);
@@ -36,6 +53,14 @@ export const CustomContent = ({layoutPanelVisible, setLayoutPanelVisible, visibl
             description: '缩小',
             action: () => {
                 handleZoomIn();
+            },
+        },
+        {
+            key: 'AddNode',
+            name: <FileAddOutlined/>,
+            description: '添加节点',
+            action: () => {
+                console.log('to add node')
             },
         },
         {

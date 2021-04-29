@@ -3,6 +3,7 @@ import React, {createRef, useEffect, useMemo, useState} from 'react';
 
 import Graphin from '@antv/graphin';
 
+// @ts-ignore
 import {FishEye, Legend, MiniMap, Toolbar, Tooltip} from '@antv/graphin-components';
 
 import {GraphinData} from "@antv/graphin/es";
@@ -12,7 +13,6 @@ import {dictUnique, arrSubtraction, edgesUnique, normalUnique} from "../utils/us
 import {CustomContent} from "./ToolbarCustom";
 import LayoutSelectorPanel from "./LayoutSelectorPanel";
 import CypherFunctionalPanel from "./CypherFunctionalPanel";
-import {initGraph, queryGraph} from "../reducer/neo4jReducer";
 import {DataNode} from "rc-tree-select/lib/interface";
 
 const nodeSize = 40;
@@ -155,6 +155,7 @@ export const DynamicLayout = () => {
                 <Legend bindType="node" sortKey="nodeType" colorKey="style.keyshape.stroke" style={{right: '10%'}}>
                     <Legend.Node/>
                 </Legend>
+                {/*<Statistic />*/}
                 <LayoutSelectorPanel isVisible={layoutPanelVisible} setVisible={setLayoutPanelVisible}
                                      updateLayout={updateLayout}/>
                 <CypherFunctionalPanel isVisible={funcPanelVisible} setVisible={setFuncPanelVisible}
