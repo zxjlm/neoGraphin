@@ -8,6 +8,7 @@ import '../css/panel.css';
 import {AppleOutlined, AndroidOutlined} from '@ant-design/icons';
 import {AutoCompleteComp} from "./AutoCompleteComp";
 import {TreeSelector} from "./TreeSelector";
+import {FindPathFrom} from "./FindPathFrom";
 
 const {TabPane} = Tabs;
 
@@ -69,10 +70,12 @@ const CypherFunctionalPanel = ({isVisible, setVisible, nodeOptions, treeOptions,
                     </Tabs>
                 </Col>
             </Row>
-
+            <Divider/>
             <Row>
-                <Divider/>
-                <div style={{fontWeight: 'bold'}}>配置参数</div>
+                <Col span={24}>
+                    <div style={{fontWeight: 'bold'}}>查找路径</div>
+                </Col>
+                <Col span={24} style={{marginTop:15}}><FindPathFrom/></Col>
             </Row>
             {/*<div*/}
             {/*    className={'contentContainer'}*/}

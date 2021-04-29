@@ -15,8 +15,11 @@ const colorMap: any = {
     'TEC_symptom': "#c7a"
 }
 
-// @ts-ignore
-const neo_query = async (query: string): Promise<QueryResult> => {
+/**
+ * 执行Cypher 返回不经过处理的结果
+ * @param query
+ */
+export const executeCypher = async (query: string): Promise<QueryResult> => {
     const neo4j = require("neo4j-driver");
 
     const driver = neo4j.driver(
@@ -34,6 +37,7 @@ const neo_query = async (query: string): Promise<QueryResult> => {
 }
 
 function extract_links(result: Record[]) {
+    debugger
     let edges: { source: any; target: any; }[] = []
     let nodes: any = {}
     result.forEach(r => {
@@ -82,7 +86,7 @@ export function extract_nodes(nodes: Record[]) {
  * @param query CYPHER语句
  */
 export const neoQuery = async (query: string): Promise<neoQueryType> => {
-    const result = await neo_query(query)
+    const result = await executeCypher(query)
     let raw_links = result.records.filter(elem => elem.keys[0] === 'p' || elem.keys[0] === 'r')
     let raw_nodes = result.records.filter(elem => elem.keys[0] === 'n')
     let {edges, nodes_1} = extract_links(raw_links)
@@ -90,6 +94,9 @@ export const neoQuery = async (query: string): Promise<neoQueryType> => {
     return {'nodes': [...nodes_1, ...nodes_2], 'edges': edges}
 }
 
+export const extract_path = (segments: { end: any, relation: any, start: any }[]) => {
+
+}
 
 function short_node(name: string) {
     if (name.length > 6) {

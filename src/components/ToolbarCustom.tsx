@@ -7,17 +7,17 @@ import {
     PieChartOutlined,
     FunctionOutlined,
     EyeOutlined,
-    FileAddOutlined
+    PlusCircleOutlined
 } from '@ant-design/icons';
 
 
 interface customContentProps {
     layoutPanelVisible: boolean,
-    setLayoutPanelVisible: (state:boolean) => void,
+    setLayoutPanelVisible: (state: boolean) => void,
     visible: boolean,
-    setVisible: (state:boolean) => void,
+    setVisible: (state: boolean) => void,
     funcPanelVisible: boolean,
-    setFuncPanelVisible: (state:boolean) => void
+    setFuncPanelVisible: (state: boolean) => void
 }
 
 export const CustomContent = ({
@@ -57,8 +57,8 @@ export const CustomContent = ({
         },
         {
             key: 'AddNode',
-            name: <FileAddOutlined/>,
-            description: '添加节点',
+            name: <PlusCircleOutlined/>,
+            description: '添加节点(未完成)',
             action: () => {
                 console.log('to add node')
             },
