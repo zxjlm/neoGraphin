@@ -75,7 +75,7 @@ const CypherFunctionalPanel = ({isVisible, setVisible, nodeOptions, treeOptions,
                 <Col span={24}>
                     <div style={{fontWeight: 'bold'}}>查找路径</div>
                 </Col>
-                <Col span={24} style={{marginTop:15}}><FindPathFrom/></Col>
+                <Col span={24} style={{marginTop:15}}><FindPathFrom setGraphData={setGraphData}/></Col>
             </Row>
             {/*<div*/}
             {/*    className={'contentContainer'}*/}

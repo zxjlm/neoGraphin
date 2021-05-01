@@ -1,6 +1,5 @@
 import {QueryResult} from "neo4j-driver/types/result";
 import Record from "neo4j-driver/types/record";
-import {PathSegment} from "neo4j-driver";
 import Integer from "neo4j-driver/types/integer";
 import {Node, NumberOrInteger, Relationship} from "neo4j-driver/types/graph-types";
 
@@ -110,8 +109,12 @@ const extract_nodes = (nodes: Record[]) => {
     }))
 }
 
-export const extract_path = (segments: MyPathSegment[]) => {
-
+export const extract_path = (result:QueryResult ) => {
+    let segments:any[] = []
+    result.records.forEach(record => {
+        record.forEach(path => segments = [...segments,...path.segments])
+    })
+    return extract_segments(segments)
 }
 
 /**

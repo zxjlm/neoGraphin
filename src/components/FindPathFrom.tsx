@@ -1,6 +1,6 @@
 import {Form, Input, Button, AutoComplete} from 'antd';
 import {useState} from "react";
-import {executeCypher} from "../utils/neoOperations";
+import {executeCypher, extract_path} from "../utils/neoOperations";
 
 const layout = {
     labelCol: {
@@ -17,7 +17,7 @@ const tailLayout = {
     },
 };
 
-export const FindPathFrom = () => {
+export const FindPathFrom = ({setGraphData}:{setGraphData:((props:{}) => void)}) => {
     const [options, setOptions] = useState([{value: 'Loading'}]);
     // const [nameTypeMapper, setNameTypeMapper] = useState({});
     // const [disabled, setDisabled] = useState(true);
@@ -26,8 +26,12 @@ export const FindPathFrom = () => {
         // let query = `MATCH (A:${nameTypeMapper[values.source]} {s_name: ${values.source} ),(B:${nameTypeMapper[values.target]} {s_name: ${values.target}),p = shortestPath((A)-[:]-(B)) RETURN p`
         let query = `MATCH (A {s_name: '${values.source}'}),(B {s_name: '${values.target}'}),p = shortestPath((A)-[*]-(B)) RETURN p`
         executeCypher(query).then(result => {
-            debugger
+            let {edges, nodes_1} = extract_path(result)
+            setGraphData({edges: edges, nodes: nodes_1})
+            sessionStorage.setItem('graph', JSON.stringify({edges: edges, nodes: nodes_1}))
         })
+
+
     };
 
     const onFinishFailed = (errorInfo: any) => {
