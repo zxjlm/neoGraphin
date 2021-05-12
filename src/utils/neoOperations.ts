@@ -24,13 +24,18 @@ const colorMap: any = {
 export const executeCypher = async (query: string): Promise<QueryResult> => {
     const neo4j = require("neo4j-driver");
 
+    const port = localStorage.getItem('neo-port')
+    const pwd = localStorage.getItem('neo-pwd')
+    console.log('port', port)
+
     const driver = neo4j.driver(
-        "bolt://localhost:7687",
-        neo4j.auth.basic("neo4j", "zxjzxj233")
+        "bolt://localhost:" + port,
+        neo4j.auth.basic("neo4j", pwd)
     );
     const session = driver.session({defaultAccessMode: neo4j.session.READ});
 
     const result = await session.run(query);
+
     await session.close();
 
     // on application exit:
@@ -109,10 +114,10 @@ const extract_nodes = (nodes: Record[]) => {
     }))
 }
 
-export const extract_path = (result:QueryResult ) => {
-    let segments:any[] = []
+export const extract_path = (result: QueryResult) => {
+    let segments: any[] = []
     result.records.forEach(record => {
-        record.forEach(path => segments = [...segments,...path.segments])
+        record.forEach(path => segments = [...segments, ...path.segments])
     })
     return extract_segments(segments)
 }

@@ -1,5 +1,5 @@
 /* eslint-disable no-undef */
-import React, {createRef, useEffect, useMemo, useState} from 'react';
+import React, {createRef, useEffect, useState} from 'react';
 
 import Graphin from '@antv/graphin';
 
@@ -30,7 +30,7 @@ const defaultLayout = {
     animation: true,
 };
 
-export const DynamicLayout = () => {
+export const DynamicLayout = ({port, pwd}: { port: string, pwd: string }) => {
     console.log('mount dyn')
     const graphinRef = createRef<Graphin>();
 
@@ -42,6 +42,8 @@ export const DynamicLayout = () => {
 
     useEffect(() => {
         console.log('dyn use effect')
+        localStorage.setItem('neo-port', port)
+        localStorage.setItem('neo-pwd', pwd)
 
         // let query = 'MATCH p=()-[r:GeneIndications]->() RETURN p LIMIT 25'
         let query = 'MATCH (n:Herb) RETURN n LIMIT 25'

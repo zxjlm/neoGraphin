@@ -1,4 +1,4 @@
-import {Form, Input, Button, AutoComplete} from 'antd';
+import {Form, Button, AutoComplete} from 'antd';
 import {useState} from "react";
 import {executeCypher, extract_path} from "../utils/neoOperations";
 
